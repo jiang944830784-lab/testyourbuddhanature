@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>测测你最像哪位佛菩萨</title>
+  <!-- Font Awesome 莲花/禅意图标库 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: #f3efe8;  /* 宣纸底色 */
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Times New Roman', '宋体', 'Songti SC', '楷体', 'KaiTi', serif;
+      padding: 16px;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* 禅意背景纹理 —— 极淡水墨晕染 */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 30%, rgba(180, 160, 140, 0.08) 0%, transparent 40%),
+                  radial-gradient(circle at 90% 70%, rgba(140, 160, 130, 0.06) 0%, transparent 50%),
+                  url('data:image/svg+xml;utf8,<svg width="100%" height="100%" viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg"><path d="M0 600 Q200 500 400 620 T800 580 T1200 600 L1200 800 L0 800 Z" fill="rgba(170,150,130,0.03)"/><path d="M0 700 Q300 650 600 720 T1200 680 L1200 800 L0 800 Z" fill="rgba(130,140,120,0.02)"/></svg>');
+      background-size: cover;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .main-wrapper {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* 主卡片 —— 素雅、通透 */
+    .card {
+      background: rgba(255, 252, 245, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 48px 48px 40px 40px;
+      box-shadow: 0 20px 40px -12px rgba(60, 40, 20, 0.12), 0 4px 18px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,240,0.6);
+      border: 1px solid rgba(210, 180, 150, 0.2);
+      padding: 28px 22px 32px;
+      transition: all 0.3s ease;
+    }
+
+    /* 标题区 */
+    .title-section {
+      text-align: center;
+      margin-bottom: 24px;
+      position: relative;
+    }
+
+    .title-section h1 {
+      font-size: 2.2rem;
+      font-weight: 400;
+      letter-spacing: 6px;
+      color: #5e4b3c;
+      text-shadow: 2px 2px 2px rgba(170, 140, 110, 0.08);
+      margin-bottom: 6px;
+      font-family: 'Times New Roman', '宋体', 'Songti SC', serif;
+    }
+
+    .subtitle {
+      color: #8f7a66;
+      font-size: 0.9rem;
+      letter-spacing: 2px;
+      border-top: 1px dashed #c9b6a2;
+      display: inline-block;
+      padding-top: 8px;
+      padding-left: 12px;
+      padding-right: 12px;
+    }
+
+    .lotus-icon {
+      color: #b7a48b;
+      font-size: 1.2rem;
+      margin: 0 6px;
+      opacity: 0.7;
+    }
+
+    /* 进度条区域 */
+    .progress-area {
+      margin: 10px 0 18px;
+    }
+
+    .progress-text {
+      display: flex;
+      justify-content: space-between;
+      color: #6e5e4e;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: rgba(200, 180, 160, 0.2);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: #a7b09e;
+      background: linear-gradient(90deg, #b7aa94, #9bab8f);
+      border-radius: 20px;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 6px #cdc6b4;
+    }
+
+    /* 问题卡片 */
+    .question-box {
+      margin: 12px 0 24px;
+    }
+
+    .question-text {
+      font-size: 1.35rem;
+      line-height: 1.5;
+      color: #4d3e2e;
+      font-weight: 400;
+      margin-bottom: 28px;
+      padding: 0 6px;
+      text-align: center;
+      font-family: 'Times New Roman', '宋体', serif;
+      border-left: 2px solid #d6c9b8;
+      padding-left: 16px;
+      text-align: left;
+    }
+
+    /* 选项列表 */
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .option-item {
+      background: rgba(250, 245, 235, 0.7);
+      border: 1px solid #dbcebc;
+      border-radius: 60px;
+      padding: 14px 20px;
+      font-size: 1.05rem;
+      color: #4f3f2e;
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      transition: all 0.2s;
+      cursor: pointer;
+      box-shadow: 0 4px 6px rgba(100, 70, 40, 0.02);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .option-item i {
+      color: #a28d76;
+      width: 20px;
+      font-size: 1.1rem;
+      opacity: 0.7;
+    }
+
+    .option-item.selected {
+      background: #e2d9cc;
+      border-color: #b7a087;
+      box-shadow: 0 8px 14px -8px rgba(100, 70, 30, 0.15), inset 0 1px 3px #fff8f0;
+      color: #3a2c1e;
+    }
+
+    .option-item.selected i {
+      color: #7a6248;
+      opacity: 1;
+    }
+
+    /* 按钮组 */
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 32px;
+      gap: 16px;
+    }
+
+    .btn {
+      background: rgba(235, 225, 210, 0.7);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+      border: 1px solid #cbbaa4;
+      padding: 12px 22px;
+      border-radius: 48px;
+      font-size: 1.1rem;
+      color: #4e3f30;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.02);
+      font-family: inherit;
+      flex: 1;
+      text-align: center;
+      font-weight: 400;
+      letter-spacing: 2px;
+    }
+
+    .btn i {
+      margin: 0 4px;
+    }
+
+    .btn:active {
+      background: #d6caba;
+      transform: scale(0.98);
+      box-shadow: inset 0 2px 5px rgba(80,50,20,0.05);
+    }
+
+    .btn:disabled {
+      opacity: 0.4;
+      pointer-events: none;
+      filter: grayscale(0.3);
+    }
+
+    .btn-primary {
+      background: #c9bbaa;
+      border-color: #a7927a;
+      color: #2f2419;
+      font-weight: 500;
+    }
+
+    /* 结果页 */
+    .result-container {
+      text-align: center;
+      animation: fade 0.5s;
+    }
+
+    .result-bodhisattva {
+      margin: 12px 0 20px;
+    }
+
+    .result-icon {
+      font-size: 3.6rem;
+      color: #7f6e5a;
+      margin-bottom: 8px;
+    }
+
+    .result-name {
+      font-size: 2.6rem;
+      font-weight: 400;
+      color: #4a3724;
+      letter-spacing: 6px;
+      margin: 10px 0 6px;
+    }
+
+    .result-desc {
+      background: rgba(225, 215, 200, 0.4);
+      padding: 20px 18px;
+      border-radius: 40px;
+      font-size: 1rem;
+      line-height: 1.7;
+      color: #4e3e2e;
+      margin: 20px 0 28px;
+      border: 1px dashed #b7a089;
+      backdrop-filter: blur(4px);
+    }
+
+    .restart-btn {
+      background: #d9cdbc;
+      border: none;
+      padding: 14px 30px;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      width: fit-content;
+      margin: 0 auto;
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(100, 70, 30, 0.06);
+      border: 1px solid #bbaa95;
+      color: #3e2f20;
+      transition: all 0.2s;
+    }
+
+    .restart-btn i {
+      margin-right: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 提示消息 */
+    .toast-message {
+      text-align: center;
+      color: #b15e2e;
+      font-size: 0.9rem;
+      margin-top: 8px;
+      min-height: 24px;
+      font-style: italic;
+    }
+
+    /* 水墨点缀 */
+    .ink-dot {
+      background: radial-gradient(circle, rgba(140,120,100,0.2) 0%, transparent 70%);
+      width: 120px;
+      height: 120px;
+      position: absolute;
+      border-radius: 50%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    @keyframes fade {
+      0% { opacity: 0.5; }
+      100% { opacity: 1; }
+    }
+
+    /* 移动端优化 */
+    @media (max-width: 400px) {
+      .card { padding: 20px 16px; }
+      .title-section h1 { font-size: 1.9rem; }
+      .question-text { font-size: 1.2rem; }
+    }
+  </style>
+</head>
+<body>
+<div class="main-wrapper">
+  <div class="card" id="appCard">
+    <!-- 标题 (始终显示) -->
+    <div class="title-section">
+      <h1>测测你最像<br>哪位佛菩萨</h1>
+      <div class="subtitle">
+        <i class="fas fa-leaf lotus-icon"></i> 九问 · 明心 <i class="fas fa-leaf lotus-icon"></i>
+      </div>
+    </div>
+
+    <!-- 动态区域：测验区 / 结果区 -->
+    <div id="quizArea">
+      <!-- 进度条 -->
+      <div class="progress-area">
+        <div class="progress-text">
+          <span><i class="fas fa-pagoda" style="margin-right: 5px;"></i>第 <span id="currentQNumber">1</span>/9 问</span>
+          <span><i class="fas fa-feather-alt"></i> 随心而答</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-fill" id="progressFill" style="width: 11.11%;"></div>
+        </div>
+      </div>
+
+      <!-- 问题容器 -->
+      <div class="question-box">
+        <div class="question-text" id="questionText">加载中...</div>
+        <div class="options-list" id="optionsContainer"></div>
+      </div>
+
+      <!-- 导航按钮 -->
+      <div class="nav-buttons">
+        <button class="btn" id="prevBtn" disabled><i class="fas fa-chevron-left"></i> 上一问</button>
+        <button class="btn btn-primary" id="nextBtn">下一问 <i class="fas fa-chevron-right"></i></button>
+      </div>
+      <div id="messageToast" class="toast-message"></div>
+    </div>
+
+    <!-- 结果区域 (初始隐藏) -->
+    <div id="resultArea" class="result-container hidden">
+      <div class="result-icon">
+        <i class="fas fa-lotus"></i> <i class="fas fa-pray"></i>
+      </div>
+      <div class="result-bodhisattva">
+        <div class="result-name" id="bodhisattvaName">观音菩萨</div>
+      </div>
+      <div class="result-desc" id="bodhisattvaDesc">
+        大慈大悲，寻声救苦。
+      </div>
+      <button class="restart-btn" id="restartBtn"><i class="fas fa-undo-alt"></i> 再测一次 · 观心</button>
+      <div style="margin-top: 16px; font-size: 0.8rem; color:#998b7a;"><i class="far fa-circle"></i> 愿您常生欢喜</div>
+    </div>
+  </div>
+  <!-- 装饰小点 (禅意) -->
+  <div class="ink-dot" style="top: 10%; left: -30px;"></div>
+  <div class="ink-dot" style="bottom: 5%; right: -20px; width: 160px; height: 160px; opacity: 0.4;"></div>
+</div>
+
+<script>
+  (function(){
+    "use strict";
+
+    // ---------- 佛菩萨数据 (六位) ----------
+    const BODHISATTVAS = [
+      { name: '观音菩萨', desc: '大慈大悲，寻声救苦。您内心柔软，常怀同理，如月映千江，给人安慰与清凉。世间音声，悉能观照。' },
+      { name: '文殊菩萨', desc: '智慧第一，手持慧剑斩烦恼。您理性明澈，善于思辨，于纷繁中见真谛。愿您以智慧灯，照破无明暗。' },
+      { name: '普贤菩萨', desc: '大行大愿，知行合一。您踏实笃行，坚毅不懈，以行动庄严愿海。十大愿王，导归极乐。' },
+      { name: '地藏菩萨', desc: '大愿坚固，“地狱不空，誓不成佛”。您有深沉的担当与悲悯，愿力宏深，安忍不动如大地。' },
+      { name: '弥勒菩萨', desc: '大肚能容，笑口常开。您天性乐观，包容欢喜，给人带来希望与温暖。慈心三昧，喜悦人间。' },
+      { name: '虚空藏菩萨', desc: '福德智慧，犹如虚空。您心胸开阔，才华内敛，能容万物，予人丰饶与安宁。' }
+    ];
+
+    // ---------- 九道题目 (禅意选择题) ----------
+    const QUESTIONS = [
+      {
+        text: '闲暇之时，你更愿意如何安顿身心？',
+        options: [
+          { text: '焚香静坐，或抄写经文', scores: [4, 2, 2, 1, 1, 2] },
+          { text: '阅读哲思典籍，与古人对话', scores: [1, 5, 2, 1, 1, 3] },
+          { text: '走进山林古寺，听风观云', scores: [3, 2, 4, 1, 2, 3] },
+          { text: '与三两知己品茶，畅谈人生', scores: [2, 2, 1, 2, 4, 2] }
+        ]
+      },
+      {
+        text: '面对困境时，你通常会？',
+        options: [
+          { text: '内省反思，从心念上转化', scores: [4, 3, 2, 2, 1, 2] },
+          { text: '冷静分析，寻求最优解', scores: [1, 5, 3, 1, 1, 2] },
+          { text: '脚踏实地，一步步去行动', scores: [2, 2, 5, 3, 1, 1] },
+          { text: '相信愿力，默默坚持', scores: [3, 1, 2, 5, 2, 3] }
+        ]
+      },
+      {
+        text: '哪种品质最令你向往？',
+        options: [
+          { text: '无缘大慈，同体大悲', scores: [5, 2, 2, 3, 3, 2] },
+          { text: '般若智慧，照见实相', scores: [1, 6, 2, 1, 1, 2] },
+          { text: '行愿无穷，精进不懈', scores: [2, 2, 6, 3, 2, 1] },
+          { text: '广大包容，欢喜无诤', scores: [2, 1, 1, 1, 5, 3] }
+        ]
+      },
+      {
+        text: '若用一句话形容你的处世风格？',
+        options: [
+          { text: '随缘不变，不变随缘', scores: [4, 2, 3, 2, 2, 3] },
+          { text: '知幻即离，不作方便', scores: [2, 5, 1, 1, 1, 2] },
+          { text: '高高山顶立，深深海底行', scores: [1, 3, 5, 4, 1, 2] },
+          { text: '大肚能容，断却许多烦恼', scores: [1, 1, 1, 2, 5, 2] }
+        ]
+      },
+      {
+        text: '哪一种自然景象更契合你的心境？',
+        options: [
+          { text: '明月照大江，清净柔和', scores: [5, 2, 1, 1, 2, 2] },
+          { text: '雪山狮子，威猛智慧', scores: [1, 5, 3, 2, 1, 2] },
+          { text: '大象徐行，稳重坚实', scores: [2, 2, 5, 3, 2, 1] },
+          { text: '沃野千里，包容生长', scores: [1, 2, 2, 2, 3, 5] }
+        ]
+      },
+      {
+        text: '朋友常说你是个怎样的人？',
+        options: [
+          { text: '温柔倾听者，给人安慰', scores: [5, 1, 2, 3, 3, 2] },
+          { text: '理性参谋，见解独到', scores: [1, 6, 2, 1, 1, 2] },
+          { text: '行动派，可靠有担当', scores: [2, 2, 5, 4, 2, 1] },
+          { text: '开心果，气氛调和者', scores: [2, 1, 1, 1, 5, 2] }
+        ]
+      },
+      {
+        text: '修行或自我提升上，你更注重？',
+        options: [
+          { text: '培养慈悲心，利他奉献', scores: [5, 2, 3, 4, 2, 2] },
+          { text: '深入经藏，智慧如海', scores: [1, 6, 2, 1, 1, 2] },
+          { text: '行持实践，积累资粮', scores: [2, 2, 5, 3, 2, 2] },
+          { text: '打开心量，包容一切', scores: [2, 2, 2, 2, 4, 4] }
+        ]
+      },
+      {
+        text: '如果有一项“超能力”，你希望是？',
+        options: [
+          { text: '抚慰一切痛苦', scores: [6, 2, 2, 3, 2, 1] },
+          { text: '看透万法本质', scores: [1, 6, 2, 1, 1, 2] },
+          { text: '完成一切善愿', scores: [2, 2, 5, 3, 2, 2] },
+          { text: '给予无尽欢喜', scores: [2, 1, 1, 1, 6, 3] }
+        ]
+      },
+      {
+        text: '你更向往哪种生命状态？',
+        options: [
+          { text: '千处祈求千处应', scores: [6, 1, 2, 3, 2, 2] },
+          { text: '八风不动，智慧无碍', scores: [1, 6, 2, 1, 1, 2] },
+          { text: '行愿无尽，步步生莲', scores: [2, 2, 6, 4, 2, 1] },
+          { text: '欢喜自在，包容十方', scores: [2, 1, 1, 2, 5, 3] }
+        ]
+      }
+    ];
+
+    // ---------- 全局状态 ----------
+    let currentIndex = 0;                // 0~8
+    let answers = new Array(9).fill(-1); // 每道题所选选项索引, -1代表未选
+    let quizContainer = document.getElementById('quizArea');
+    let resultContainer = document.getElementById('resultArea');
+    
+    // DOM 元素
+    const questionText = document.getElementById('questionText');
+    const optionsDiv = document.getElementById('optionsContainer');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressFill = document.getElementById('progressFill');
+    const currentQNumberSpan = document.getElementById('currentQNumber');
+    const messageToast = document.getElementById('messageToast');
+
+    const bodhisattvaName = document.getElementById('bodhisattvaName');
+    const bodhisattvaDesc = document.getElementById('bodhisattvaDesc');
+    const restartBtn = document.getElementById('restartBtn');
+
+    // ---------- 辅助函数 ----------
+    function showMessage(msg, isWarning = true) {
+      messageToast.textContent = msg;
+      messageToast.style.color = isWarning ? '#b15e2e' : '#5f7a5a';
+      setTimeout(() => { messageToast.textContent = ''; }, 2000);
+    }
+
+    // 更新进度UI
+    function updateProgress() {
+      const percent = ((currentIndex + 1) / QUESTIONS.length) * 100;
+      progressFill.style.width = percent + '%';
+      currentQNumberSpan.textContent = currentIndex + 1;
+    }
+
+    // 渲染当前题目 (根据currentIndex)
+    function renderQuestion() {
+      const q = QUESTIONS[currentIndex];
+      questionText.textContent = q.text;
+      
+      // 生成选项html
+      let html = '';
+      const selectedIdx = answers[currentIndex];
+      
+      q.options.forEach((opt, idx) => {
+        const selectedClass = (selectedIdx === idx) ? 'selected' : '';
+        // 为每个选项配一个小图标
+        let icon = 'fa-circle';
+        if (idx === 0) icon = 'fa-feather';
+        else if (idx === 1) icon = 'fa-book-open';
+        else if (idx === 2) icon = 'fa-mountain';
+        else icon = 'fa-leaf';
+        
+        html += `<div class="option-item ${selectedClass}" data-option-index="${idx}">
+                  <i class="fas ${icon}"></i> ${opt.text}
+                </div>`;
+      });
+      optionsDiv.innerHTML = html;
+      
+      // 绑定选项点击事件
+      document.querySelectorAll('.option-item').forEach(el => {
+        el.addEventListener('click', (e) => {
+          const index = parseInt(el.dataset.optionIndex, 10);
+          selectOption(index);
+        });
+      });
+      
+      // 更新按钮状态
+      prevBtn.disabled = (currentIndex === 0);
+      if (currentIndex === QUESTIONS.length - 1) {
+        nextBtn.innerHTML = '揭晓结果 <i class="fas fa-lotus"></i>';
+      } else {
+        nextBtn.innerHTML = '下一问 <i class="fas fa-chevron-right"></i>';
+      }
+      
+      updateProgress();
+    }
+
+    // 选择选项
+    function selectOption(optionIndex) {
+      if (answers[currentIndex] === optionIndex) return; // 已选中同一个
+      
+      answers[currentIndex] = optionIndex;
+      renderQuestion(); // 重新渲染高亮
+      // 清除任何提示
+      messageToast.textContent = '';
+    }
+
+    // 检查当前题目是否已选
+    function isCurrentAnswered() {
+      return answers[currentIndex] !== -1;
+    }
+
+    // 检查是否所有题目都已答 (用于最后查看结果)
+    function allQuestionsAnswered() {
+      return answers.every(idx => idx !== -1);
+    }
+
+    // 找到第一个未答题的索引
+    function findFirstUnanswered() {
+      return answers.findIndex(idx => idx === -1);
+    }
+
+    // 计算最终菩萨 (返回索引)
+    function calculateResult() {
+      const scores = new Array(BODHISATTVAS.length).fill(0);
+      
+      for (let qIdx = 0; qIdx < QUESTIONS.length; qIdx++) {
+        const selectedOptIdx = answers[qIdx];
+        if (selectedOptIdx === -1) continue; // 理论上不会进来
+        const scoreArray = QUESTIONS[qIdx].options[selectedOptIdx].scores;
+        for (let bIdx = 0; bIdx < scores.length; bIdx++) {
+          scores[bIdx] += scoreArray[bIdx];
+        }
+      }
+      
+      // 找最高分 (如果有并列，取第一个)
+      let maxScore = -1;
+      let bestIndex = 0;
+      scores.forEach((val, idx) => {
+        if (val > maxScore) {
+          maxScore = val;
+          bestIndex = idx;
+        }
+      });
+      return bestIndex;
+    }
+
+    // 显示结果页
+    function showResult() {
+      const bestIdx = calculateResult();
+      const bodhisattva = BODHISATTVAS[bestIdx];
+      bodhisattvaName.textContent = bodhisattva.name;
+      bodhisattvaDesc.textContent = bodhisattva.desc;
+      
+      quizContainer.classList.add('hidden');
+      resultContainer.classList.remove('hidden');
+    }
+
+    // 重置测验
+    function resetQuiz() {
+      currentIndex = 0;
+      answers = new Array(9).fill(-1);
+      quizContainer.classList.remove('hidden');
+      resultContainer.classList.add('hidden');
+      messageToast.textContent = '';
+      renderQuestion();
+    }
+
+    // 下一题/查看结果逻辑
+    function handleNext() {
+      // 验证当前题目是否已选
+      if (!isCurrentAnswered()) {
+        showMessage('🍃 请先选择一个选项，再继续', true);
+        return;
+      }
+      
+      if (currentIndex === QUESTIONS.length - 1) {
+        // 最后一步：查看结果，但还需确保所有题都有答案 (实际上因为每一步都强制选择，应该都选了)
+        if (!allQuestionsAnswered()) {
+          const firstUn = findFirstUnanswered();
+          if (firstUn !== -1) {
+            currentIndex = firstUn;
+            renderQuestion();
+            showMessage('尚有未答之问，请您完成', true);
+            return;
+          }
+        }
+        // 展示结果
+        showResult();
+      } else {
+        // 移动到下一题
+        currentIndex++;
+        renderQuestion();
+      }
+    }
+
+    // 上一题
+    function handlePrev() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderQuestion();
+      }
+    }
+
+    // ---------- 绑定事件 ----------
+    prevBtn.addEventListener('click', handlePrev);
+    nextBtn.addEventListener('click', handleNext);
+    
+    restartBtn.addEventListener('click', () => {
+      resetQuiz();
+    });
+
+    // 初始化渲染
+    renderQuestion();
+
+    // 额外：如果用户试图通过点击空白处等，不做处理；适配移动端
+    // 若结果页需要重新开始，已绑定restart
+  })();
+</script>
+</body>
+</html>
